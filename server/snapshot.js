@@ -1,4 +1,4 @@
-// crowd-control/server/snapshot.js
+// touchdesigner-mobile-control/server/snapshot.js
 export function buildSnapshot(session) {
   const slots = [];
   for (let i = 0; i <= session.config.slotCap; i++) {

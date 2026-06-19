@@ -1,15 +1,15 @@
-# crowd-control/touchdesigner/crowd_ws_callbacks.py
+# touchdesigner-mobile-control/touchdesigner/tdmc_ws_callbacks.py
 """
-Crowd-Control WebSocket DAT callbacks (TouchDesigner side).
+TouchDesigner Mobile Control WebSocket DAT callbacks (TouchDesigner side).
 
 Setup (SEPARATE from the 9980 MCP WebServer DAT — do not reuse it):
-  1. Create a WebSocket DAT (e.g. /project1/crowd_ws).
+  1. Create a WebSocket DAT (e.g. /project1/tdmc_ws).
   2. Network Address = the Khadas localhost or tunnel host; Port = 8080;
      Path/Request = /engine?secret=<ENGINE_SECRET>; Active = On.
   3. Point its Callbacks DAT at a Text DAT holding this script.
-  4. Create three Table DATs as siblings: 'crowd_slots', 'crowd_signals', and a Text DAT 'crowd_code'.
-  5. Feed crowd_slots into a DAT-to-CHOP (+ Lag CHOP) for your channel logic;
-     composite crowd_code into a Text TOP on the projection.
+  4. Create three Table DATs as siblings: 'tdmc_slots', 'tdmc_signals', and a Text DAT 'tdmc_code'.
+  5. Feed tdmc_slots into a DAT-to-CHOP (+ Lag CHOP) for your channel logic;
+     composite tdmc_code into a Text TOP on the projection.
 """
 
 import json
@@ -18,7 +18,7 @@ BASE_COLS = ['slot', 'role', 'active', 'x', 'y']
 
 
 def onConnect(webSocketDAT):
-    code_dat = op('crowd_code')
+    code_dat = op('tdmc_code')
     if code_dat is not None:
         code_dat.clear()
         code_dat.text = '...'
@@ -45,7 +45,7 @@ def onReceiveText(webSocketDAT, contents):
 
 def _apply_snapshot(msg):
     # code → Text DAT
-    code_dat = op('crowd_code')
+    code_dat = op('tdmc_code')
     if code_dat is not None:
         code_dat.clear()
         code_dat.text = str(msg.get('code') or '')
@@ -59,7 +59,7 @@ def _apply_snapshot(msg):
             if k not in val_cols:
                 val_cols.append(k)
 
-    table = op('crowd_slots')
+    table = op('tdmc_slots')
     if table is None:
         return
     table.clear()
@@ -80,7 +80,7 @@ def _apply_snapshot(msg):
 
 
 def _apply_signal(msg):
-    sig = op('crowd_signals')
+    sig = op('tdmc_signals')
     if sig is None:
         return
     if sig.numRows == 0:

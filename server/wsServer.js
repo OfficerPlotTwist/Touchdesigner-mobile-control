@@ -1,4 +1,4 @@
-// crowd-control/server/wsServer.js
+// touchdesigner-mobile-control/server/wsServer.js
 import { createServer as createHttp } from 'node:http';
 import { WebSocketServer } from 'ws';
 import { resolve } from 'node:path';

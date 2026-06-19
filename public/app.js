@@ -1,10 +1,10 @@
-// crowd-control/public/app.js
+// touchdesigner-mobile-control/public/app.js
 import { visibleControls, gridVisible, lockoutSeconds } from '/ui-logic.js';
 
 const $ = (id) => document.getElementById(id);
 const clientId = (() => {
-  let v = localStorage.getItem('cc-client-id');
-  if (!v) { v = 'u' + Math.random().toString(36).slice(2, 10); localStorage.setItem('cc-client-id', v); }
+  let v = localStorage.getItem('tdmc-client-id');
+  if (!v) { v = 'u' + Math.random().toString(36).slice(2, 10); localStorage.setItem('tdmc-client-id', v); }
   return v;
 })();
 

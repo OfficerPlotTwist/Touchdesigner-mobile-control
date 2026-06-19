@@ -1,8 +1,9 @@
-# crowd-control
+# TouchDesigner Mobile Control
 
-Mobile crowd-control frontend for a live TouchDesigner projection.
+Mobile control frontend for a live TouchDesigner projection — lets a crowd drive the
+projection from their phones (npm package: `touchdesigner-mobile-control`).
 Co-hosts on the Khadas with TD; exposed publicly via an outbound tunnel.
-See the design spec: `../docs/superpowers/specs/2026-06-18-td-mobile-crowd-control-design.md`.
+See the design spec: `docs/2026-06-18-touchdesigner-mobile-control-design.md`.
 
 ## Run (local)
 
@@ -39,9 +40,9 @@ npm test          # node --test across test/
 
 ## TouchDesigner side
 
-Paste `touchdesigner/crowd_ws_callbacks.py` into the callback DAT of a **new**
+Paste `touchdesigner/tdmc_ws_callbacks.py` into the callback DAT of a **new**
 WebSocket DAT (NOT the 9980 MCP WebServer DAT). See that file's header for the
-DAT wiring (crowd_slots / crowd_signals / crowd_code).
+DAT wiring (tdmc_slots / tdmc_signals / tdmc_code).
 
 ## Operator kill-switch
 

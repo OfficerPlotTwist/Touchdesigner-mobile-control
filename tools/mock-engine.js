@@ -1,4 +1,4 @@
-// crowd-control/tools/mock-engine.js
+// touchdesigner-mobile-control/tools/mock-engine.js
 import { WebSocket } from 'ws';
 const port = process.env.PORT || 8080;
 const secret = process.env.ENGINE_SECRET || 'dev-secret';

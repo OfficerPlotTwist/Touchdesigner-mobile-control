@@ -1,4 +1,4 @@
-# TD Mobile Crowd Control — Design Spec
+# TouchDesigner Mobile Control — Design Spec
 
 **Date:** 2026-06-18
 **Status:** Approved (brainstorming) → ready for implementation planning

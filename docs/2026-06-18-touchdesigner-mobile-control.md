@@ -1,4 +1,4 @@
-# TD Mobile Crowd Control — Implementation Plan
+# TouchDesigner Mobile Control — Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
@@ -10,7 +10,7 @@
 
 ## Global Constraints
 
-- **Spec of record:** `docs/superpowers/specs/2026-06-18-td-mobile-crowd-control-design.md`. Every task implements part of it.
+- **Spec of record:** `docs/superpowers/specs/2026-06-18-touchdesigner-mobile-control-design.md`. Every task implements part of it.
 - **Module system:** ESM only (`"type": "module"`); `import`/`export`, no `require`.
 - **Node:** target v24.13 (installed); floor v20 (for stable built-in `node:test`).
 - **Test runner:** built-in `node --test`; assertions via `node:assert/strict`. No Jest/Mocha/Vitest.
@@ -28,7 +28,7 @@
 ## File Structure
 
 ```
-crowd-control/
+touchdesigner-mobile-control/
 ├─ package.json                  ESM, ws dep, test/start scripts
 ├─ README.md                     run + tunnel ops
 ├─ server/
@@ -60,7 +60,7 @@ crowd-control/
 │  ├─ mock-engine.js             connect as engine, pretty-print snapshots (format lock)
 │  └─ fake-phones.js             open N phone sockets, drive traffic (load test)
 └─ touchdesigner/
-   └─ crowd_ws_callbacks.py      WebSocket DAT callbacks: snapshot → Table DAT + code Text DAT
+   └─ tdmc_ws_callbacks.py      WebSocket DAT callbacks: snapshot → Table DAT + code Text DAT
 ```
 
 ---
@@ -68,9 +68,9 @@ crowd-control/
 ## Task 1: Project scaffold
 
 **Files:**
-- Create: `crowd-control/package.json`
-- Create: `crowd-control/shows/demo.json`
-- Create: `crowd-control/test/smoke.test.js`
+- Create: `touchdesigner-mobile-control/package.json`
+- Create: `touchdesigner-mobile-control/shows/demo.json`
+- Create: `touchdesigner-mobile-control/test/smoke.test.js`
 
 **Interfaces:**
 - Consumes: nothing.
@@ -79,7 +79,7 @@ crowd-control/
 - [ ] **Step 1: Write the smoke test**
 
 ```js
-// crowd-control/test/smoke.test.js
+// touchdesigner-mobile-control/test/smoke.test.js
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
@@ -92,7 +92,7 @@ test('test runner works', () => {
 
 ```json
 {
-  "name": "crowd-control",
+  "name": "touchdesigner-mobile-control",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -127,14 +127,14 @@ test('test runner works', () => {
 
 - [ ] **Step 4: Install deps and run the test**
 
-Run: `cd crowd-control && npm install && npm test`
+Run: `cd touchdesigner-mobile-control && npm install && npm test`
 Expected: `ws` installed; test output shows `tests 1`, `pass 1`, `fail 0`.
 
 - [ ] **Step 5: Commit**
 
 ```bash
-git add crowd-control/package.json crowd-control/package-lock.json crowd-control/shows/demo.json crowd-control/test/smoke.test.js
-git commit -m "feat(crowd-control): scaffold package + node:test runner"
+git add touchdesigner-mobile-control/package.json touchdesigner-mobile-control/package-lock.json touchdesigner-mobile-control/shows/demo.json touchdesigner-mobile-control/test/smoke.test.js
+git commit -m "feat(touchdesigner-mobile-control): scaffold package + node:test runner"
 ```
 
 ---
@@ -142,8 +142,8 @@ git commit -m "feat(crowd-control): scaffold package + node:test runner"
 ## Task 2: Show config loader & validator
 
 **Files:**
-- Create: `crowd-control/server/config.js`
-- Test: `crowd-control/test/config.test.js`
+- Create: `touchdesigner-mobile-control/server/config.js`
+- Test: `touchdesigner-mobile-control/test/config.test.js`
 
 **Interfaces:**
 - Consumes: a show JSON shaped like `shows/demo.json`.
@@ -155,7 +155,7 @@ git commit -m "feat(crowd-control): scaffold package + node:test runner"
 - [ ] **Step 1: Write failing tests**
 
 ```js
-// crowd-control/test/config.test.js
+// touchdesigner-mobile-control/test/config.test.js
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { validateConfig } from '../server/config.js';
@@ -201,13 +201,13 @@ test('grid may be null', () => {
 
 - [ ] **Step 2: Run to verify failure**
 
-Run: `cd crowd-control && node --test test/config.test.js`
+Run: `cd touchdesigner-mobile-control && node --test test/config.test.js`
 Expected: FAIL — `Cannot find module '../server/config.js'`.
 
 - [ ] **Step 3: Implement config.js**
 
 ```js
-// crowd-control/server/config.js
+// touchdesigner-mobile-control/server/config.js
 import { readFileSync } from 'node:fs';
 
 const ROLES = new Set(['master', 'public']);
@@ -281,14 +281,14 @@ export function loadConfig(path) {
 
 - [ ] **Step 4: Run to verify pass**
 
-Run: `cd crowd-control && node --test test/config.test.js`
+Run: `cd touchdesigner-mobile-control && node --test test/config.test.js`
 Expected: PASS — `tests 5`, `pass 5`.
 
 - [ ] **Step 5: Commit**
 
 ```bash
-git add crowd-control/server/config.js crowd-control/test/config.test.js
-git commit -m "feat(crowd-control): show config loader + validator"
+git add touchdesigner-mobile-control/server/config.js touchdesigner-mobile-control/test/config.test.js
+git commit -m "feat(touchdesigner-mobile-control): show config loader + validator"
 ```
 
 ---
@@ -296,8 +296,8 @@ git commit -m "feat(crowd-control): show config loader + validator"
 ## Task 3: Wire protocol (parse + build)
 
 **Files:**
-- Create: `crowd-control/server/protocol.js`
-- Test: `crowd-control/test/protocol.test.js`
+- Create: `touchdesigner-mobile-control/server/protocol.js`
+- Test: `touchdesigner-mobile-control/test/protocol.test.js`
 
 **Interfaces:**
 - Consumes: nothing.
@@ -308,7 +308,7 @@ git commit -m "feat(crowd-control): show config loader + validator"
 - [ ] **Step 1: Write failing tests**
 
 ```js
-// crowd-control/test/protocol.test.js
+// touchdesigner-mobile-control/test/protocol.test.js
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { parseInbound, welcome, errorMsg } from '../server/protocol.js';
@@ -358,13 +358,13 @@ test('error builder carries code + extra', () => {
 
 - [ ] **Step 2: Run to verify failure**
 
-Run: `cd crowd-control && node --test test/protocol.test.js`
+Run: `cd touchdesigner-mobile-control && node --test test/protocol.test.js`
 Expected: FAIL — module not found.
 
 - [ ] **Step 3: Implement protocol.js**
 
 ```js
-// crowd-control/server/protocol.js
+// touchdesigner-mobile-control/server/protocol.js
 const clamp01 = (n) => (n < 0 ? 0 : n > 1 ? 1 : n);
 const isNum = (n) => typeof n === 'number' && Number.isFinite(n);
 const isStr = (s) => typeof s === 'string' && s.length > 0;
@@ -409,14 +409,14 @@ export const errorMsg = (code, message, extra = {}) => ({ type: 'error', code, m
 
 - [ ] **Step 4: Run to verify pass**
 
-Run: `cd crowd-control && node --test test/protocol.test.js`
+Run: `cd touchdesigner-mobile-control && node --test test/protocol.test.js`
 Expected: PASS — `tests 7`.
 
 - [ ] **Step 5: Commit**
 
 ```bash
-git add crowd-control/server/protocol.js crowd-control/test/protocol.test.js
-git commit -m "feat(crowd-control): wire protocol parse + builders"
+git add touchdesigner-mobile-control/server/protocol.js touchdesigner-mobile-control/test/protocol.test.js
+git commit -m "feat(touchdesigner-mobile-control): wire protocol parse + builders"
 ```
 
 ---
@@ -424,8 +424,8 @@ git commit -m "feat(crowd-control): wire protocol parse + builders"
 ## Task 4: Session — connect, slots, recycling, overflow
 
 **Files:**
-- Create: `crowd-control/server/session.js`
-- Test: `crowd-control/test/session.test.js`
+- Create: `touchdesigner-mobile-control/server/session.js`
+- Test: `touchdesigner-mobile-control/test/session.test.js`
 
 **Interfaces:**
 - Consumes: a validated `config` (Task 2).
@@ -439,7 +439,7 @@ git commit -m "feat(crowd-control): wire protocol parse + builders"
 - [ ] **Step 1: Write failing tests**
 
 ```js
-// crowd-control/test/session.test.js
+// touchdesigner-mobile-control/test/session.test.js
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { Session } from '../server/session.js';
@@ -488,13 +488,13 @@ test('guestCount reflects occupied guest slots', () => {
 
 - [ ] **Step 2: Run to verify failure**
 
-Run: `cd crowd-control && node --test test/session.test.js`
+Run: `cd touchdesigner-mobile-control && node --test test/session.test.js`
 Expected: FAIL — module not found.
 
 - [ ] **Step 3: Implement session.js (construction + slots)**
 
 ```js
-// crowd-control/server/session.js
+// touchdesigner-mobile-control/server/session.js
 
 const DEFAULTS = {
   seizeLockMs: 15000,
@@ -573,14 +573,14 @@ export function randomCode() {
 
 - [ ] **Step 4: Run to verify pass**
 
-Run: `cd crowd-control && node --test test/session.test.js`
+Run: `cd touchdesigner-mobile-control && node --test test/session.test.js`
 Expected: PASS — `tests 5`.
 
 - [ ] **Step 5: Commit**
 
 ```bash
-git add crowd-control/server/session.js crowd-control/test/session.test.js
-git commit -m "feat(crowd-control): session slot assignment + recycling + overflow"
+git add touchdesigner-mobile-control/server/session.js touchdesigner-mobile-control/test/session.test.js
+git commit -m "feat(touchdesigner-mobile-control): session slot assignment + recycling + overflow"
 ```
 
 ---
@@ -588,8 +588,8 @@ git commit -m "feat(crowd-control): session slot assignment + recycling + overfl
 ## Task 5: Session — pairing, last-wins, 15 s lock-out, code rotation on seizure
 
 **Files:**
-- Modify: `crowd-control/server/session.js`
-- Test: `crowd-control/test/session.test.js` (append)
+- Modify: `touchdesigner-mobile-control/server/session.js`
+- Test: `touchdesigner-mobile-control/test/session.test.js` (append)
 
 **Interfaces:**
 - Consumes: the `Session` from Task 4.
@@ -602,7 +602,7 @@ git commit -m "feat(crowd-control): session slot assignment + recycling + overfl
 - [ ] **Step 1: Append failing tests**
 
 ```js
-// append to crowd-control/test/session.test.js
+// append to touchdesigner-mobile-control/test/session.test.js
 test('first valid pair grants master and rotates code', () => {
   const s = new Session(cfg, { codeGen: (() => { let i = 0; const codes = ['AAA', 'BBB']; return () => codes[i++] || 'ZZZ'; })() });
   s.connect('c1', 'u1', 0);
@@ -660,7 +660,7 @@ test('master disconnect releases and rotates code', () => {
 
 - [ ] **Step 2: Run to verify failure**
 
-Run: `cd crowd-control && node --test test/session.test.js`
+Run: `cd touchdesigner-mobile-control && node --test test/session.test.js`
 Expected: FAIL — `s.pair is not a function` / `currentCode` is null.
 
 - [ ] **Step 3: Implement pairing**
@@ -738,14 +738,14 @@ Delete the old `disconnect` method from Task 4 (the new one above replaces it).
 
 - [ ] **Step 4: Run to verify pass**
 
-Run: `cd crowd-control && node --test test/session.test.js`
+Run: `cd touchdesigner-mobile-control && node --test test/session.test.js`
 Expected: PASS — all session tests (Task 4 + Task 5) green.
 
 - [ ] **Step 5: Commit**
 
 ```bash
-git add crowd-control/server/session.js crowd-control/test/session.test.js
-git commit -m "feat(crowd-control): master pairing, last-wins, 15s lock-out, code rotation"
+git add touchdesigner-mobile-control/server/session.js touchdesigner-mobile-control/test/session.test.js
+git commit -m "feat(touchdesigner-mobile-control): master pairing, last-wins, 15s lock-out, code rotation"
 ```
 
 ---
@@ -753,8 +753,8 @@ git commit -m "feat(crowd-control): master pairing, last-wins, 15s lock-out, cod
 ## Task 6: Session — inputs (control/grid/signal) with role gating
 
 **Files:**
-- Modify: `crowd-control/server/session.js`
-- Test: `crowd-control/test/session.test.js` (append)
+- Modify: `touchdesigner-mobile-control/server/session.js`
+- Test: `touchdesigner-mobile-control/test/session.test.js` (append)
 
 **Interfaces:**
 - Consumes: `Session` + the validated `config` (controls/grid/signals carry `role`).
@@ -767,7 +767,7 @@ git commit -m "feat(crowd-control): master pairing, last-wins, 15s lock-out, cod
 - [ ] **Step 1: Append failing tests**
 
 ```js
-// append to crowd-control/test/session.test.js
+// append to touchdesigner-mobile-control/test/session.test.js
 const cfg2 = {
   show: 'demo', slotCap: 4,
   controls: [
@@ -832,7 +832,7 @@ test('unknown control id is rejected', () => {
 
 - [ ] **Step 2: Run to verify failure**
 
-Run: `cd crowd-control && node --test test/session.test.js`
+Run: `cd touchdesigner-mobile-control && node --test test/session.test.js`
 Expected: FAIL — `applyControl is not a function`.
 
 - [ ] **Step 3: Implement inputs + gating**
@@ -905,14 +905,14 @@ In `disconnect`, after computing the freed slot, call `this._clearSlotData(clien
 
 - [ ] **Step 4: Run to verify pass**
 
-Run: `cd crowd-control && node --test test/session.test.js`
+Run: `cd touchdesigner-mobile-control && node --test test/session.test.js`
 Expected: PASS — all session tests green.
 
 - [ ] **Step 5: Commit**
 
 ```bash
-git add crowd-control/server/session.js crowd-control/test/session.test.js
-git commit -m "feat(crowd-control): role-gated control/grid/signal inputs"
+git add touchdesigner-mobile-control/server/session.js touchdesigner-mobile-control/test/session.test.js
+git commit -m "feat(touchdesigner-mobile-control): role-gated control/grid/signal inputs"
 ```
 
 ---
@@ -920,8 +920,8 @@ git commit -m "feat(crowd-control): role-gated control/grid/signal inputs"
 ## Task 7: Session — housekeeping tick (idle release, hard cap, idle code rotation)
 
 **Files:**
-- Modify: `crowd-control/server/session.js`
-- Test: `crowd-control/test/session.test.js` (append)
+- Modify: `touchdesigner-mobile-control/server/session.js`
+- Test: `touchdesigner-mobile-control/test/session.test.js` (append)
 
 **Interfaces:**
 - Consumes: `Session`.
@@ -933,7 +933,7 @@ git commit -m "feat(crowd-control): role-gated control/grid/signal inputs"
 - [ ] **Step 1: Append failing tests**
 
 ```js
-// append to crowd-control/test/session.test.js
+// append to touchdesigner-mobile-control/test/session.test.js
 test('tick releases master after 2 min inactivity', () => {
   const s = mk2();
   s.connect('c1', 'u1', 0);
@@ -974,7 +974,7 @@ test('tick rotates the code after idle timeout when no master', () => {
 
 - [ ] **Step 2: Run to verify failure**
 
-Run: `cd crowd-control && node --test test/session.test.js`
+Run: `cd touchdesigner-mobile-control && node --test test/session.test.js`
 Expected: FAIL — `s.tick is not a function`.
 
 - [ ] **Step 3: Implement tick**
@@ -1017,14 +1017,14 @@ Note: `_releaseMaster` already rotates the code, so a release implies a rotation
 
 - [ ] **Step 4: Run to verify pass**
 
-Run: `cd crowd-control && node --test test/session.test.js`
+Run: `cd touchdesigner-mobile-control && node --test test/session.test.js`
 Expected: PASS — all session tests green.
 
 - [ ] **Step 5: Commit**
 
 ```bash
-git add crowd-control/server/session.js crowd-control/test/session.test.js
-git commit -m "feat(crowd-control): housekeeping tick — releases + idle code rotation"
+git add touchdesigner-mobile-control/server/session.js touchdesigner-mobile-control/test/session.test.js
+git commit -m "feat(touchdesigner-mobile-control): housekeeping tick — releases + idle code rotation"
 ```
 
 ---
@@ -1032,8 +1032,8 @@ git commit -m "feat(crowd-control): housekeeping tick — releases + idle code r
 ## Task 8: Engine snapshot builder
 
 **Files:**
-- Create: `crowd-control/server/snapshot.js`
-- Test: `crowd-control/test/snapshot.test.js`
+- Create: `touchdesigner-mobile-control/server/snapshot.js`
+- Test: `touchdesigner-mobile-control/test/snapshot.test.js`
 
 **Interfaces:**
 - Consumes: a `Session`.
@@ -1043,7 +1043,7 @@ git commit -m "feat(crowd-control): housekeeping tick — releases + idle code r
 - [ ] **Step 1: Write failing tests**
 
 ```js
-// crowd-control/test/snapshot.test.js
+// touchdesigner-mobile-control/test/snapshot.test.js
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { Session } from '../server/session.js';
@@ -1089,13 +1089,13 @@ test('absent grid point defaults to 0,0', () => {
 
 - [ ] **Step 2: Run to verify failure**
 
-Run: `cd crowd-control && node --test test/snapshot.test.js`
+Run: `cd touchdesigner-mobile-control && node --test test/snapshot.test.js`
 Expected: FAIL — module not found.
 
 - [ ] **Step 3: Implement snapshot.js**
 
 ```js
-// crowd-control/server/snapshot.js
+// touchdesigner-mobile-control/server/snapshot.js
 export function buildSnapshot(session) {
   const slots = [];
   for (let i = 0; i <= session.config.slotCap; i++) {
@@ -1123,14 +1123,14 @@ export function buildSnapshot(session) {
 
 - [ ] **Step 4: Run to verify pass**
 
-Run: `cd crowd-control && node --test test/snapshot.test.js`
+Run: `cd touchdesigner-mobile-control && node --test test/snapshot.test.js`
 Expected: PASS — `tests 3`.
 
 - [ ] **Step 5: Commit**
 
 ```bash
-git add crowd-control/server/snapshot.js crowd-control/test/snapshot.test.js
-git commit -m "feat(crowd-control): TD engine snapshot builder"
+git add touchdesigner-mobile-control/server/snapshot.js touchdesigner-mobile-control/test/snapshot.test.js
+git commit -m "feat(touchdesigner-mobile-control): TD engine snapshot builder"
 ```
 
 ---
@@ -1138,8 +1138,8 @@ git commit -m "feat(crowd-control): TD engine snapshot builder"
 ## Task 9: Per-connection rate limiter
 
 **Files:**
-- Create: `crowd-control/server/ratelimit.js`
-- Test: `crowd-control/test/ratelimit.test.js`
+- Create: `touchdesigner-mobile-control/server/ratelimit.js`
+- Test: `touchdesigner-mobile-control/test/ratelimit.test.js`
 
 **Interfaces:**
 - Consumes: nothing.
@@ -1148,7 +1148,7 @@ git commit -m "feat(crowd-control): TD engine snapshot builder"
 - [ ] **Step 1: Write failing tests**
 
 ```js
-// crowd-control/test/ratelimit.test.js
+// touchdesigner-mobile-control/test/ratelimit.test.js
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { TokenBucket } from '../server/ratelimit.js';
@@ -1178,13 +1178,13 @@ test('refill math: 1s restores full capacity', () => {
 
 - [ ] **Step 2: Run to verify failure**
 
-Run: `cd crowd-control && node --test test/ratelimit.test.js`
+Run: `cd touchdesigner-mobile-control && node --test test/ratelimit.test.js`
 Expected: FAIL — module not found.
 
 - [ ] **Step 3: Implement ratelimit.js**
 
 ```js
-// crowd-control/server/ratelimit.js
+// touchdesigner-mobile-control/server/ratelimit.js
 export class TokenBucket {
   constructor(capacity, refillPerSec) {
     this.capacity = capacity;
@@ -1217,14 +1217,14 @@ test('refills 1 token per 100ms at 10/s', () => {
 });
 ```
 
-Run: `cd crowd-control && node --test test/ratelimit.test.js`
+Run: `cd touchdesigner-mobile-control && node --test test/ratelimit.test.js`
 Expected: PASS — `tests 3`.
 
 - [ ] **Step 5: Commit**
 
 ```bash
-git add crowd-control/server/ratelimit.js crowd-control/test/ratelimit.test.js
-git commit -m "feat(crowd-control): per-connection token-bucket rate limiter"
+git add touchdesigner-mobile-control/server/ratelimit.js touchdesigner-mobile-control/test/ratelimit.test.js
+git commit -m "feat(touchdesigner-mobile-control): per-connection token-bucket rate limiter"
 ```
 
 ---
@@ -1232,9 +1232,9 @@ git commit -m "feat(crowd-control): per-connection token-bucket rate limiter"
 ## Task 10: Static file server
 
 **Files:**
-- Create: `crowd-control/server/static.js`
-- Create: `crowd-control/public/index.html` (minimal placeholder; fleshed out in Task 12)
-- Test: `crowd-control/test/static.test.js`
+- Create: `touchdesigner-mobile-control/server/static.js`
+- Create: `touchdesigner-mobile-control/public/index.html` (minimal placeholder; fleshed out in Task 12)
+- Test: `touchdesigner-mobile-control/test/static.test.js`
 
 **Interfaces:**
 - Consumes: nothing.
@@ -1245,7 +1245,7 @@ git commit -m "feat(crowd-control): per-connection token-bucket rate limiter"
 - [ ] **Step 1: Write failing tests**
 
 ```js
-// crowd-control/test/static.test.js
+// touchdesigner-mobile-control/test/static.test.js
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { resolveStaticPath } from '../server/static.js';
@@ -1273,17 +1273,17 @@ test('blocks path traversal', () => {
 - [ ] **Step 2: Create placeholder index.html and run to verify failure**
 
 ```html
-<!-- crowd-control/public/index.html -->
-<!doctype html><meta charset="utf-8"><title>crowd-control</title><p>placeholder</p>
+<!-- touchdesigner-mobile-control/public/index.html -->
+<!doctype html><meta charset="utf-8"><title>touchdesigner-mobile-control</title><p>placeholder</p>
 ```
 
-Run: `cd crowd-control && node --test test/static.test.js`
+Run: `cd touchdesigner-mobile-control && node --test test/static.test.js`
 Expected: FAIL — module not found.
 
 - [ ] **Step 3: Implement static.js**
 
 ```js
-// crowd-control/server/static.js
+// touchdesigner-mobile-control/server/static.js
 import { resolve, normalize, extname, sep } from 'node:path';
 import { createReadStream, existsSync, statSync } from 'node:fs';
 
@@ -1317,14 +1317,14 @@ export function serveStatic(rootDir, req, res) {
 
 - [ ] **Step 4: Run to verify pass**
 
-Run: `cd crowd-control && node --test test/static.test.js`
+Run: `cd touchdesigner-mobile-control && node --test test/static.test.js`
 Expected: PASS — `tests 3`.
 
 - [ ] **Step 5: Commit**
 
 ```bash
-git add crowd-control/server/static.js crowd-control/public/index.html crowd-control/test/static.test.js
-git commit -m "feat(crowd-control): safe static file server with traversal guard"
+git add touchdesigner-mobile-control/server/static.js touchdesigner-mobile-control/public/index.html touchdesigner-mobile-control/test/static.test.js
+git commit -m "feat(touchdesigner-mobile-control): safe static file server with traversal guard"
 ```
 
 ---
@@ -1332,9 +1332,9 @@ git commit -m "feat(crowd-control): safe static file server with traversal guard
 ## Task 11: WebSocket server glue + entry point (integration)
 
 **Files:**
-- Create: `crowd-control/server/wsServer.js`
-- Create: `crowd-control/server/index.js`
-- Test: `crowd-control/test/wsServer.integration.test.js`
+- Create: `touchdesigner-mobile-control/server/wsServer.js`
+- Create: `touchdesigner-mobile-control/server/index.js`
+- Test: `touchdesigner-mobile-control/test/wsServer.integration.test.js`
 
 **Interfaces:**
 - Consumes: `Session`, `parseInbound` + builders, `buildSnapshot`, `TokenBucket`, `serveStatic`, `loadConfig`.
@@ -1346,7 +1346,7 @@ git commit -m "feat(crowd-control): safe static file server with traversal guard
 - [ ] **Step 1: Write the failing integration test**
 
 ```js
-// crowd-control/test/wsServer.integration.test.js
+// touchdesigner-mobile-control/test/wsServer.integration.test.js
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { WebSocket } from 'ws';
@@ -1418,13 +1418,13 @@ test('engine with wrong secret is rejected', async () => {
 
 - [ ] **Step 2: Run to verify failure**
 
-Run: `cd crowd-control && node --test test/wsServer.integration.test.js`
+Run: `cd touchdesigner-mobile-control && node --test test/wsServer.integration.test.js`
 Expected: FAIL — module not found.
 
 - [ ] **Step 3: Implement wsServer.js**
 
 ```js
-// crowd-control/server/wsServer.js
+// touchdesigner-mobile-control/server/wsServer.js
 import { createServer as createHttp } from 'node:http';
 import { WebSocketServer } from 'ws';
 import { resolve } from 'node:path';
@@ -1558,7 +1558,7 @@ export function createServer({ config, port, publicDir, engineSecret, opts = {} 
 - [ ] **Step 4: Implement index.js**
 
 ```js
-// crowd-control/server/index.js
+// touchdesigner-mobile-control/server/index.js
 import { resolve } from 'node:path';
 import { loadConfig } from './config.js';
 import { createServer } from './wsServer.js';
@@ -1569,19 +1569,19 @@ const engineSecret = process.env.ENGINE_SECRET || 'dev-secret';
 
 const config = loadConfig(resolve(process.cwd(), showPath));
 const srv = createServer({ config, port, publicDir: 'public', engineSecret });
-console.log(`crowd-control "${config.show}" listening on http://0.0.0.0:${port}  (engine secret: ${engineSecret})`);
+console.log(`touchdesigner-mobile-control "${config.show}" listening on http://0.0.0.0:${port}  (engine secret: ${engineSecret})`);
 
 process.on('SIGINT', async () => { await srv.stop(); process.exit(0); });
 ```
 
 - [ ] **Step 5: Run the integration test, then commit**
 
-Run: `cd crowd-control && node --test test/wsServer.integration.test.js`
+Run: `cd touchdesigner-mobile-control && node --test test/wsServer.integration.test.js`
 Expected: PASS — `tests 3`.
 
 ```bash
-git add crowd-control/server/wsServer.js crowd-control/server/index.js crowd-control/test/wsServer.integration.test.js
-git commit -m "feat(crowd-control): ws server glue, engine channel, tick + snapshot loops"
+git add touchdesigner-mobile-control/server/wsServer.js touchdesigner-mobile-control/server/index.js touchdesigner-mobile-control/test/wsServer.integration.test.js
+git commit -m "feat(touchdesigner-mobile-control): ws server glue, engine channel, tick + snapshot loops"
 ```
 
 ---
@@ -1589,8 +1589,8 @@ git commit -m "feat(crowd-control): ws server glue, engine channel, tick + snaps
 ## Task 12: Phone PWA — pure UI logic
 
 **Files:**
-- Create: `crowd-control/public/ui-logic.js`
-- Test: `crowd-control/test/ui-logic.test.js`
+- Create: `touchdesigner-mobile-control/public/ui-logic.js`
+- Test: `touchdesigner-mobile-control/test/ui-logic.test.js`
 
 **Interfaces:**
 - Consumes: the `config` shape + a `role`.
@@ -1602,7 +1602,7 @@ git commit -m "feat(crowd-control): ws server glue, engine channel, tick + snaps
 - [ ] **Step 1: Write failing tests**
 
 ```js
-// crowd-control/test/ui-logic.test.js
+// touchdesigner-mobile-control/test/ui-logic.test.js
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { visibleControls, gridVisible, lockoutSeconds } from '../public/ui-logic.js';
@@ -1637,13 +1637,13 @@ test('lockoutSeconds rounds up', () => {
 
 - [ ] **Step 2: Run to verify failure**
 
-Run: `cd crowd-control && node --test test/ui-logic.test.js`
+Run: `cd touchdesigner-mobile-control && node --test test/ui-logic.test.js`
 Expected: FAIL — module not found.
 
 - [ ] **Step 3: Implement ui-logic.js**
 
 ```js
-// crowd-control/public/ui-logic.js
+// touchdesigner-mobile-control/public/ui-logic.js
 export function visibleControls(config, role) {
   if (role === 'master') return config.controls.slice();
   if (role === 'guest') return config.controls.filter((c) => c.role === 'public');
@@ -1664,14 +1664,14 @@ export function lockoutSeconds(retryInMs) {
 
 - [ ] **Step 4: Run to verify pass**
 
-Run: `cd crowd-control && node --test test/ui-logic.test.js`
+Run: `cd touchdesigner-mobile-control && node --test test/ui-logic.test.js`
 Expected: PASS — `tests 5`.
 
 - [ ] **Step 5: Commit**
 
 ```bash
-git add crowd-control/public/ui-logic.js crowd-control/test/ui-logic.test.js
-git commit -m "feat(crowd-control): pure PWA UI-logic (visible controls, grid, lockout)"
+git add touchdesigner-mobile-control/public/ui-logic.js touchdesigner-mobile-control/test/ui-logic.test.js
+git commit -m "feat(touchdesigner-mobile-control): pure PWA UI-logic (visible controls, grid, lockout)"
 ```
 
 ---
@@ -1679,10 +1679,10 @@ git commit -m "feat(crowd-control): pure PWA UI-logic (visible controls, grid, l
 ## Task 13: Phone PWA — shell, client, DOM wiring
 
 **Files:**
-- Modify: `crowd-control/public/index.html`
-- Create: `crowd-control/public/app.js`
-- Create: `crowd-control/public/styles.css`
-- Create: `crowd-control/public/manifest.webmanifest`
+- Modify: `touchdesigner-mobile-control/public/index.html`
+- Create: `touchdesigner-mobile-control/public/app.js`
+- Create: `touchdesigner-mobile-control/public/styles.css`
+- Create: `touchdesigner-mobile-control/public/manifest.webmanifest`
 
 **Interfaces:**
 - Consumes: `ui-logic.js`; the wire protocol; the server at the same origin.
@@ -1693,14 +1693,14 @@ git commit -m "feat(crowd-control): pure PWA UI-logic (visible controls, grid, l
 - [ ] **Step 1: Write index.html**
 
 ```html
-<!-- crowd-control/public/index.html -->
+<!-- touchdesigner-mobile-control/public/index.html -->
 <!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
   <link rel="manifest" href="/manifest.webmanifest" />
-  <title>Crowd Control</title>
+  <title>TouchDesigner Mobile Control</title>
   <link rel="stylesheet" href="/styles.css" />
 </head>
 <body>
@@ -1729,13 +1729,13 @@ git commit -m "feat(crowd-control): pure PWA UI-logic (visible controls, grid, l
 - [ ] **Step 2: Write app.js**
 
 ```js
-// crowd-control/public/app.js
+// touchdesigner-mobile-control/public/app.js
 import { visibleControls, gridVisible, lockoutSeconds } from '/ui-logic.js';
 
 const $ = (id) => document.getElementById(id);
 const clientId = (() => {
-  let v = localStorage.getItem('cc-client-id');
-  if (!v) { v = 'u' + Math.random().toString(36).slice(2, 10); localStorage.setItem('cc-client-id', v); }
+  let v = localStorage.getItem('tdmc-client-id');
+  if (!v) { v = 'u' + Math.random().toString(36).slice(2, 10); localStorage.setItem('tdmc-client-id', v); }
   return v;
 })();
 
@@ -1843,7 +1843,7 @@ connect();
 - [ ] **Step 3: Write styles.css (minimal — design pass comes later)**
 
 ```css
-/* crowd-control/public/styles.css */
+/* touchdesigner-mobile-control/public/styles.css */
 :root { color-scheme: dark; }
 * { box-sizing: border-box; }
 body { margin: 0; font: 16px system-ui, sans-serif; background: #0b0b10; color: #eee;
@@ -1867,7 +1867,7 @@ button { font: inherit; }
 
 ```json
 {
-  "name": "Crowd Control",
+  "name": "TouchDesigner Mobile Control",
   "short_name": "Control",
   "display": "standalone",
   "background_color": "#0b0b10",
@@ -1879,11 +1879,11 @@ button { font: inherit; }
 
 - [ ] **Step 5: Manual smoke test, then commit**
 
-Run: `cd crowd-control && PORT=8080 npm start` then open `http://localhost:8080` in a browser; open a second tab. Verify: status shows "online"; a slider for the public "Color" control appears; the grid canvas responds to drag; tapping **Seize Master**, typing the code from the server log's session (use the mock-engine in Task 14 to see the code, or temporarily log `session.currentCode`) grants master and reveals the master-only "Speed" slider.
+Run: `cd touchdesigner-mobile-control && PORT=8080 npm start` then open `http://localhost:8080` in a browser; open a second tab. Verify: status shows "online"; a slider for the public "Color" control appears; the grid canvas responds to drag; tapping **Seize Master**, typing the code from the server log's session (use the mock-engine in Task 14 to see the code, or temporarily log `session.currentCode`) grants master and reveals the master-only "Speed" slider.
 
 ```bash
-git add crowd-control/public/index.html crowd-control/public/app.js crowd-control/public/styles.css crowd-control/public/manifest.webmanifest
-git commit -m "feat(crowd-control): phone PWA shell, ws client, DOM wiring"
+git add touchdesigner-mobile-control/public/index.html touchdesigner-mobile-control/public/app.js touchdesigner-mobile-control/public/styles.css touchdesigner-mobile-control/public/manifest.webmanifest
+git commit -m "feat(touchdesigner-mobile-control): phone PWA shell, ws client, DOM wiring"
 ```
 
 ---
@@ -1891,8 +1891,8 @@ git commit -m "feat(crowd-control): phone PWA shell, ws client, DOM wiring"
 ## Task 14: Tools — mock engine + fake phones
 
 **Files:**
-- Create: `crowd-control/tools/mock-engine.js`
-- Create: `crowd-control/tools/fake-phones.js`
+- Create: `touchdesigner-mobile-control/tools/mock-engine.js`
+- Create: `touchdesigner-mobile-control/tools/fake-phones.js`
 
 **Interfaces:**
 - Consumes: a running server (Task 11) + `ENGINE_SECRET`.
@@ -1901,7 +1901,7 @@ git commit -m "feat(crowd-control): phone PWA shell, ws client, DOM wiring"
 - [ ] **Step 1: Write mock-engine.js**
 
 ```js
-// crowd-control/tools/mock-engine.js
+// touchdesigner-mobile-control/tools/mock-engine.js
 import { WebSocket } from 'ws';
 const port = process.env.PORT || 8080;
 const secret = process.env.ENGINE_SECRET || 'dev-secret';
@@ -1918,7 +1918,7 @@ ws.on('close', () => { console.log('closed'); process.exit(0); });
 - [ ] **Step 2: Write fake-phones.js**
 
 ```js
-// crowd-control/tools/fake-phones.js
+// touchdesigner-mobile-control/tools/fake-phones.js
 import { WebSocket } from 'ws';
 const port = process.env.PORT || 8080;
 const N = Number(process.argv[2] || 10);
@@ -1940,17 +1940,17 @@ console.log(`spawned ${N} fake phones against :${port}`);
 - [ ] **Step 3: Manual verification**
 
 Run in three terminals:
-1. `cd crowd-control && ENGINE_SECRET=s PORT=8080 npm start`
-2. `cd crowd-control && ENGINE_SECRET=s npm run mock-engine`
-3. `cd crowd-control && npm run fake-phones 20`
+1. `cd touchdesigner-mobile-control && ENGINE_SECRET=s PORT=8080 npm start`
+2. `cd touchdesigner-mobile-control && ENGINE_SECRET=s npm run mock-engine`
+3. `cd touchdesigner-mobile-control && npm run fake-phones 20`
 
 Expected: mock-engine prints snapshots whose `slots.length` climbs toward the slotCap (24), then plateaus (overflow → spectators), with grid `x/y` changing each frame.
 
 - [ ] **Step 4: Commit**
 
 ```bash
-git add crowd-control/tools/mock-engine.js crowd-control/tools/fake-phones.js
-git commit -m "feat(crowd-control): mock-engine + fake-phones dev tools"
+git add touchdesigner-mobile-control/tools/mock-engine.js touchdesigner-mobile-control/tools/fake-phones.js
+git commit -m "feat(touchdesigner-mobile-control): mock-engine + fake-phones dev tools"
 ```
 
 ---
@@ -1958,29 +1958,29 @@ git commit -m "feat(crowd-control): mock-engine + fake-phones dev tools"
 ## Task 15: TouchDesigner WebSocket DAT ingestion
 
 **Files:**
-- Create: `crowd-control/touchdesigner/crowd_ws_callbacks.py`
+- Create: `touchdesigner-mobile-control/touchdesigner/tdmc_ws_callbacks.py`
 
 **Interfaces:**
 - Consumes: the engine `snapshot`/`signal` messages from Task 11.
-- Produces: WebSocket DAT callbacks that, on each snapshot, (a) write one row per slot into a Table DAT `crowd_slots` (columns: `slot role active x y` + one column per control id seen) and (b) write the current code into a Text DAT `crowd_code`. On `signal`, append to a `crowd_signals` Table DAT (slot, id, frame). Designed to be pasted into a WebSocket DAT's callback DAT — a SEPARATE WebSocket DAT from the 9980 MCP WebServer.
+- Produces: WebSocket DAT callbacks that, on each snapshot, (a) write one row per slot into a Table DAT `tdmc_slots` (columns: `slot role active x y` + one column per control id seen) and (b) write the current code into a Text DAT `tdmc_code`. On `signal`, append to a `tdmc_signals` Table DAT (slot, id, frame). Designed to be pasted into a WebSocket DAT's callback DAT — a SEPARATE WebSocket DAT from the 9980 MCP WebServer.
 
 > TD-side code is verified manually against the live project + the mock-engine; there is no headless unit test (no TD runtime in CI). The message format was already locked by Tasks 8/11/14.
 
-- [ ] **Step 1: Write crowd_ws_callbacks.py**
+- [ ] **Step 1: Write tdmc_ws_callbacks.py**
 
 ```python
-# crowd-control/touchdesigner/crowd_ws_callbacks.py
+# touchdesigner-mobile-control/touchdesigner/tdmc_ws_callbacks.py
 """
-Crowd-Control WebSocket DAT callbacks (TouchDesigner side).
+TouchDesigner Mobile Control WebSocket DAT callbacks (TouchDesigner side).
 
 Setup (SEPARATE from the 9980 MCP WebServer DAT — do not reuse it):
-  1. Create a WebSocket DAT (e.g. /project1/crowd_ws).
+  1. Create a WebSocket DAT (e.g. /project1/tdmc_ws).
   2. Network Address = the Khadas localhost or tunnel host; Port = 8080;
      Path/Request = /engine?secret=<ENGINE_SECRET>; Active = On.
   3. Point its Callbacks DAT at a Text DAT holding this script.
-  4. Create three Table DATs as siblings: 'crowd_slots', 'crowd_signals', and a Text DAT 'crowd_code'.
-  5. Feed crowd_slots into a DAT-to-CHOP (+ Lag CHOP) for your channel logic;
-     composite crowd_code into a Text TOP on the projection.
+  4. Create three Table DATs as siblings: 'tdmc_slots', 'tdmc_signals', and a Text DAT 'tdmc_code'.
+  5. Feed tdmc_slots into a DAT-to-CHOP (+ Lag CHOP) for your channel logic;
+     composite tdmc_code into a Text TOP on the projection.
 """
 
 import json
@@ -1989,7 +1989,7 @@ BASE_COLS = ['slot', 'role', 'active', 'x', 'y']
 
 
 def onConnect(webSocketDAT):
-    op('crowd_code')[0, 0] = '...'
+    op('tdmc_code')[0, 0] = '...'
     return
 
 
@@ -2013,7 +2013,7 @@ def onReceiveText(webSocketDAT, contents):
 
 def _apply_snapshot(msg):
     # code → Text DAT
-    code_dat = op('crowd_code')
+    code_dat = op('tdmc_code')
     if code_dat is not None:
         code_dat.clear()
         code_dat.text = str(msg.get('code') or '')
@@ -2027,7 +2027,7 @@ def _apply_snapshot(msg):
             if k not in val_cols:
                 val_cols.append(k)
 
-    table = op('crowd_slots')
+    table = op('tdmc_slots')
     if table is None:
         return
     table.clear()
@@ -2048,7 +2048,7 @@ def _apply_snapshot(msg):
 
 
 def _apply_signal(msg):
-    sig = op('crowd_signals')
+    sig = op('tdmc_signals')
     if sig is None:
         return
     if sig.numRows == 0:
@@ -2061,13 +2061,13 @@ def _apply_signal(msg):
 
 - [ ] **Step 2: Manual verification against the live project**
 
-With the server + mock-engine running, point a real WebSocket DAT at `/engine?secret=<secret>`. In TD confirm: `crowd_code` updates as the code rotates; `crowd_slots` gains a row per connected phone with live `x/y`; firing a guest "burst" appends to `crowd_signals`. Confirm the 9980 MCP WebServer DAT is untouched and the MCP bridge still responds to `get_errors`.
+With the server + mock-engine running, point a real WebSocket DAT at `/engine?secret=<secret>`. In TD confirm: `tdmc_code` updates as the code rotates; `tdmc_slots` gains a row per connected phone with live `x/y`; firing a guest "burst" appends to `tdmc_signals`. Confirm the 9980 MCP WebServer DAT is untouched and the MCP bridge still responds to `get_errors`.
 
 - [ ] **Step 3: Commit**
 
 ```bash
-git add crowd-control/touchdesigner/crowd_ws_callbacks.py
-git commit -m "feat(crowd-control): TD WebSocket DAT ingestion (snapshot/signal)"
+git add touchdesigner-mobile-control/touchdesigner/tdmc_ws_callbacks.py
+git commit -m "feat(touchdesigner-mobile-control): TD WebSocket DAT ingestion (snapshot/signal)"
 ```
 
 ---
@@ -2075,7 +2075,7 @@ git commit -m "feat(crowd-control): TD WebSocket DAT ingestion (snapshot/signal)
 ## Task 16: README + tunnel ops
 
 **Files:**
-- Create: `crowd-control/README.md`
+- Create: `touchdesigner-mobile-control/README.md`
 
 **Interfaces:**
 - Consumes: everything above.
@@ -2084,11 +2084,11 @@ git commit -m "feat(crowd-control): TD WebSocket DAT ingestion (snapshot/signal)
 - [ ] **Step 1: Write README.md**
 
 ````markdown
-# crowd-control
+# touchdesigner-mobile-control
 
-Mobile crowd-control frontend for a live TouchDesigner projection.
+Mobile touchdesigner-mobile-control frontend for a live TouchDesigner projection.
 Co-hosts on the Khadas with TD; exposed publicly via an outbound tunnel.
-See the design spec: `../docs/superpowers/specs/2026-06-18-td-mobile-crowd-control-design.md`.
+See the design spec: `../docs/superpowers/specs/2026-06-18-touchdesigner-mobile-control-design.md`.
 
 ## Run (local)
 
@@ -2125,9 +2125,9 @@ npm test          # node --test across test/
 
 ## TouchDesigner side
 
-Paste `touchdesigner/crowd_ws_callbacks.py` into the callback DAT of a **new**
+Paste `touchdesigner/tdmc_ws_callbacks.py` into the callback DAT of a **new**
 WebSocket DAT (NOT the 9980 MCP WebServer DAT). See that file's header for the
-DAT wiring (crowd_slots / crowd_signals / crowd_code).
+DAT wiring (tdmc_slots / tdmc_signals / tdmc_code).
 
 ## Operator kill-switch
 
@@ -2138,13 +2138,13 @@ with a fresh code. (A dedicated in-UI kill-switch endpoint is future work.)
 
 - [ ] **Step 2: Verify the doc commands**
 
-Run: `cd crowd-control && npm test` and confirm the command in the README matches reality (all suites pass).
+Run: `cd touchdesigner-mobile-control && npm test` and confirm the command in the README matches reality (all suites pass).
 
 - [ ] **Step 3: Commit**
 
 ```bash
-git add crowd-control/README.md
-git commit -m "docs(crowd-control): README + Cloudflare Tunnel ops"
+git add touchdesigner-mobile-control/README.md
+git commit -m "docs(touchdesigner-mobile-control): README + Cloudflare Tunnel ops"
 ```
 
 ---

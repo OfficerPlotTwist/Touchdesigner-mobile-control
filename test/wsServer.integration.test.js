@@ -1,4 +1,4 @@
-// crowd-control/test/wsServer.integration.test.js
+// touchdesigner-mobile-control/test/wsServer.integration.test.js
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { WebSocket } from 'ws';

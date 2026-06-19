@@ -1,4 +1,4 @@
-// crowd-control/tools/fake-phones.js
+// touchdesigner-mobile-control/tools/fake-phones.js
 import { WebSocket } from 'ws';
 const port = process.env.PORT || 8080;
 const N = Number(process.argv[2] || 10);
