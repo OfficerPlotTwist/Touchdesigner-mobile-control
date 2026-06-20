@@ -16,9 +16,14 @@ export function buildSystemPrompt({ effectPath, contract }) {
   ].join('\n');
 }
 
-// Build the runner the worker calls. mcpServerUrl points at the TD-MCP WebServer
-// DAT (e.g. ws://127.0.0.1:9980). The Agent SDK is pointed at Z.AI via the
-// ANTHROPIC_BASE_URL / ANTHROPIC_AUTH_TOKEN env vars the process is started with.
+// Build the runner the worker calls. mcpServerUrl: the TD-MCP endpoint as an
+// SSE/HTTP URL (e.g. http://127.0.0.1:9980). The Agent SDK is pointed at Z.AI via
+// the ANTHROPIC_BASE_URL / ANTHROPIC_AUTH_TOKEN env vars the process is started with.
+//
+// Transport note: this runner uses the SSE/HTTP transport ({ type: 'sse', url })
+// for the Agent SDK session, while the worker's mcpBridge.js uses a raw WebSocket
+// (ws://) to the same TD-MCP server — so EOD_MCP_URL may need a per-transport form
+// (http:// here vs ws:// for the bridge).
 //
 // SDK notes (v0.3.x):
 //  - query() takes { prompt, options } where options keys include model,

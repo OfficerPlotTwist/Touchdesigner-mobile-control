@@ -11,7 +11,8 @@ export function parseInbound(raw, { requestMaxLen, nameMaxLen }) {
   switch (m.type) {
     case 'hello': {
       if (!isStr(m.clientId) || !m.clientId) return { ok: false, error: 'hello.clientId required' };
-      const name = isStr(m.name) && clean(m.name, nameMaxLen) ? clean(m.name, nameMaxLen) : 'anonymous';
+      const cleaned = isStr(m.name) ? clean(m.name, nameMaxLen) : '';
+      const name = cleaned || 'anonymous';
       return { ok: true, msg: { type: 'hello', clientId: m.clientId.slice(0, 64), name } };
     }
     case 'request': {

@@ -10,7 +10,6 @@ export class MockTdBridge {
       execLog: [],
     };
     this.knobs = {
-      failBuildForRequestId: opts.failBuildForRequestId ?? null,
       blankForRequestId: opts.blankForRequestId ?? null,
       errorsForPath: opts.errorsForPath ?? {},   // path -> string[]
       bridgeDown: opts.bridgeDown ?? false,

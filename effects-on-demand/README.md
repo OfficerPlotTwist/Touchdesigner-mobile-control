@@ -20,7 +20,9 @@ Worker env (never commit secrets):
 export ANTHROPIC_BASE_URL=<Z.AI Anthropic-compatible endpoint>
 export ANTHROPIC_AUTH_TOKEN=<Z.AI key>
 export EOD_GLM_MODEL=<GLM model id>
-export EOD_MCP_URL=ws://127.0.0.1:9980   # TD-MCP WebServer DAT
+export EOD_MCP_URL=ws://127.0.0.1:9980   # TD-MCP WebServer DAT (ws:// for the worker bridge)
+# Note: the Agent SDK session uses the SSE/HTTP form of this URL (e.g. http://127.0.0.1:9980).
+# Confirm the correct per-transport URL against the TD-MCP server during the manual run.
 ```
 
 ## Run (single process: intake + worker share the queue)
