@@ -476,7 +476,8 @@ test('rejects an abusive marker', () => {
 });
 
 test('sanitizeAuthor strips control chars and caps length', () => {
-  assert.equal(sanitizeAuthor('Al ice\n', { nameMaxLen: 40 }), 'Alice');
+  assert.equal(sanitizeAuthor('Alice\n', { nameMaxLen: 40 }), 'Alice');
+  assert.equal(sanitizeAuthor('A  l', { nameMaxLen: 40 }), 'A l');
   assert.equal(sanitizeAuthor('   ', { nameMaxLen: 40 }), 'anonymous');
   assert.equal(sanitizeAuthor('x'.repeat(99), { nameMaxLen: 40 }).length, 40);
 });
@@ -513,7 +514,7 @@ export function sanitizeAuthor(name, { nameMaxLen }) {
   if (typeof name !== 'string') return 'anonymous';
   // Strip control + non-printable, collapse whitespace, cap length.
   const cleaned = name
-    .replace(/[ --]/g, '')
+    .replace(/[\u0000-\u001F\u007F-\u009F]/g, '')
     .replace(/\s+/g, ' ')
     .trim()
     .slice(0, nameMaxLen);
