@@ -1,0 +1,20 @@
+{
+  "name": "effects-on-demand",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "start:intake": "node server/index.js",
+    "start:worker": "node worker/index.js",
+    "test": "node --test",
+    "mock-td": "node tools/mock-td.js",
+    "fake-phones": "node tools/fake-phones.js"
+  },
+  "dependencies": {
+    "@anthropic-ai/claude-agent-sdk": "^0.3.0",
+    "ws": "^8.18.0"
+  }
+}

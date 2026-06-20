@@ -7,6 +7,7 @@
   "scripts": {
     "start": "node server/index.js",
     "test": "node --test",
+    "test:eod": "node --test effects-on-demand/test/*.test.js",
     "mock-engine": "node tools/mock-engine.js",
     "fake-phones": "node tools/fake-phones.js"
   },

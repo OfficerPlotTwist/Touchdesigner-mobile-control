@@ -1,0 +1,27 @@
+// Lightweight intake screen. This is a coarse first gate, not a content
+// moderator — the goal is to drop obvious abuse/spam before it reaches the
+// queue and the projection. Tune the blocklist per venue.
+const BLOCKLIST = [
+  /\bfuck\b/i, /\bshit\b/i, /\bcunt\b/i, /\bnigg/i, /\bfag\b/i, /\brape\b/i,
+  /\bkill\s+(yourself|urself)\b/i,
+];
+
+export function screenRequest(text, { requestMaxLen }) {
+  if (typeof text !== 'string') return { ok: false, code: 'rejected', reason: 'not text' };
+  const trimmed = text.trim();
+  if (!trimmed) return { ok: false, code: 'rejected', reason: 'empty' };
+  if (text.length > requestMaxLen) return { ok: false, code: 'rejected', reason: 'too long' };
+  if (BLOCKLIST.some((re) => re.test(trimmed))) return { ok: false, code: 'rejected', reason: 'screened' };
+  return { ok: true, text: trimmed };
+}
+
+export function sanitizeAuthor(name, { nameMaxLen }) {
+  if (typeof name !== 'string') return 'anonymous';
+  // Strip control + non-printable, collapse whitespace, cap length.
+  const cleaned = name
+    .replace(/[\u0000-\u001F\u007F-\u009F]/g, '')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .slice(0, nameMaxLen);
+  return cleaned || 'anonymous';
+}

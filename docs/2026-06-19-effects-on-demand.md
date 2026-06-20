@@ -476,7 +476,8 @@ test('rejects an abusive marker', () => {
 });
 
 test('sanitizeAuthor strips control chars and caps length', () => {
-  assert.equal(sanitizeAuthor('Al ice\n', { nameMaxLen: 40 }), 'Alice');
+  assert.equal(sanitizeAuthor('Alice\n', { nameMaxLen: 40 }), 'Alice');
+  assert.equal(sanitizeAuthor('A  l', { nameMaxLen: 40 }), 'A l');
   assert.equal(sanitizeAuthor('   ', { nameMaxLen: 40 }), 'anonymous');
   assert.equal(sanitizeAuthor('x'.repeat(99), { nameMaxLen: 40 }).length, 40);
 });
@@ -513,7 +514,7 @@ export function sanitizeAuthor(name, { nameMaxLen }) {
   if (typeof name !== 'string') return 'anonymous';
   // Strip control + non-printable, collapse whitespace, cap length.
   const cleaned = name
-    .replace(/[ --]/g, '')
+    .replace(/[\u0000-\u001F\u007F-\u009F]/g, '')
     .replace(/\s+/g, ' ')
     .trim()
     .slice(0, nameMaxLen);
@@ -1247,8 +1248,10 @@ test('at cap, LRU recycles oldest non-live before adding', async () => {
   bridge.state.ops.add('/project1/effects/fx_old');
   const r = await processJob({ job: job('new'), config: c, bridge, runAgentSession: okRunner, now, onStatus: () => {} });
   assert.equal(r.state, 'live');
+  assert.equal(r.index, 1);                                          // reused the freed slot (capped gallery)
   const reg = await bridge.readRegistry();
-  assert.equal(reg.some((e) => e.index === 1), false);              // old recycled
+  assert.equal(reg.length, 2);                                       // safe(0) + new(1); old recycled
+  assert.equal(reg.some((e) => e.compPath.includes('fx_old')), false); // old effect gone from registry
   assert.equal(bridge.state.ops.has('/project1/effects/fx_old'), false);
 });
 ```
