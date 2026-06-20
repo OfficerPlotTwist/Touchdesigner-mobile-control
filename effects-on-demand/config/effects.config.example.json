@@ -1,0 +1,14 @@
+{
+  "queueBound": 20,
+  "jobTimeoutMs": 300000,
+  "galleryCap": 12,
+  "requestMaxLen": 280,
+  "nameMaxLen": 40,
+  "cooldownMs": 4000,
+  "contract": {
+    "effectsPath": "/project1/effects",
+    "switchPath": "/project1/fx_switch",
+    "registryPath": "/project1/fx_registry",
+    "safeIndex": 0
+  }
+}
