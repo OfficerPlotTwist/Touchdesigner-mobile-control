@@ -1,14 +1,14 @@
 {
-  "name": "touchdesigner-mobile-control",
+  "name": "effects-on-demand",
   "version": "0.1.0",
   "private": true,
   "type": "module",
   "engines": { "node": ">=20" },
   "scripts": {
-    "start": "node server/index.js",
+    "start:intake": "node server/index.js",
+    "start:worker": "node worker/index.js",
     "test": "node --test",
-    "test:eod": "node --test effects-on-demand/test/*.test.js",
-    "mock-engine": "node tools/mock-engine.js",
+    "mock-td": "node tools/mock-td.js",
     "fake-phones": "node tools/fake-phones.js"
   },
   "dependencies": {
