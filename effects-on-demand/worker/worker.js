@@ -31,15 +31,15 @@ export async function processJob({ job, config, bridge, runAgentSession, now, on
 
   // 3. Assign index, recycling the oldest non-live effect if at cap.
   const liveIndex = await bridge.getSwitch();
-  const entries = await bridge.readRegistry();
+  let entries = await bridge.readRegistry();
   const recycle = pickRecycleIndex({ entries, cap: galleryCap, liveIndex, safeIndex: contract.safeIndex });
   if (recycle != null) {
     const victim = entries.find((e) => e.index === recycle);
     if (victim) await bridge.deleteOp(victim.compPath);
     await bridge.removeRegistryByIndex(recycle);
+    entries = await bridge.readRegistry();
   }
-  // Use the pre-recycle entries list so nextIndex skips the recycled slot,
-  // advancing to the next free index rather than reusing the vacated one.
+  // nextIndex sees the freed slot as available and reuses it, keeping indices bounded in [0, cap).
   const index = nextIndex(entries, contract.safeIndex);
 
   // 4. Delegate the creative build to the agent, bounded by the job timeout.
