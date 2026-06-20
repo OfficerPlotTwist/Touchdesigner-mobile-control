@@ -1248,8 +1248,10 @@ test('at cap, LRU recycles oldest non-live before adding', async () => {
   bridge.state.ops.add('/project1/effects/fx_old');
   const r = await processJob({ job: job('new'), config: c, bridge, runAgentSession: okRunner, now, onStatus: () => {} });
   assert.equal(r.state, 'live');
+  assert.equal(r.index, 1);                                          // reused the freed slot (capped gallery)
   const reg = await bridge.readRegistry();
-  assert.equal(reg.some((e) => e.index === 1), false);              // old recycled
+  assert.equal(reg.length, 2);                                       // safe(0) + new(1); old recycled
+  assert.equal(reg.some((e) => e.compPath.includes('fx_old')), false); // old effect gone from registry
   assert.equal(bridge.state.ops.has('/project1/effects/fx_old'), false);
 });
 ```
